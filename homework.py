@@ -41,11 +41,9 @@ def send_message(bot, message):
     """Функция отправки сообщения."""
     try:
         bot.send_message(TELEGRAM_CHAT_ID, message)
-        logger.info(
-            f'Успех! Бот отправил сообщение: {message}')
+        logger.info(f'Успех! Бот отправил сообщение: {message}')
     except BotException:
-        logger.error(
-            f'Что-то пошло не так')
+        logger.error('Что-то пошло не так')
 
 
 def get_api_answer(current_timestamp):
@@ -100,13 +98,11 @@ def parse_status(homework):
     try:
         homework_status = homework.get('status')
     except KeyError as key:
-        message = f'Ошибка доступа по ключу status: {key}'
-        logger.error(message)
+        logger.error(f'Ошибка доступа по ключу status: {key}')
     try:
         homework_name = homework.get('homework_name')
     except KeyError as key:
-        message = f'Ошибка доступа по ключу homework_name: {key}'
-        logger.error(message)
+        logger.error(f'Ошибка доступа по ключу homework_name: {key}')
     verdict = HOMEWORK_STATUSES[homework_status]
     if verdict is None:
         message = 'Неизвестный статус домашней работы'
@@ -125,7 +121,7 @@ def check_tokens():
     }
     for key, value in tokens.items():
         if value is None:
-            logging.error(f'{key} отсутствует')
+            logging.critical(f'{key} отсутствует')
             return False
     return True
 
