@@ -3,7 +3,7 @@ import time
 import logging
 from http import HTTPStatus
 from dotenv import load_dotenv
-import requests 
+import requests
 import telegram
 
 
@@ -31,6 +31,7 @@ HOMEWORK_STATUSES = {
 
 logger = logging.getLogger(__name__)
 
+
 class BotException(Exception):
     """Исключение бота."""
 
@@ -55,18 +56,18 @@ def get_api_answer(current_timestamp):
     }
     try:
         response = requests.get(
-        ENDPOINT,
-        headers=HEADERS,
-        params=params
-    )
+            ENDPOINT,
+            headers=HEADERS,
+            params=params
+        )
     except requests.exceptions.RequestException as error:
         raise BotException(f'Не удается найти Endpoint: {error}')
     if response.status_code != HTTPStatus.OK:
         message = (f'Endpoint {ENDPOINT} не работает, '
-               f'http status: {response.status_code}'
-               )
+                   f'http status: {response.status_code}')
         raise BotException(message)
     return response.json()
+
 
 def check_response(response):
     """Функция проверяет корректность ответа API Яндекс Практикума."""
