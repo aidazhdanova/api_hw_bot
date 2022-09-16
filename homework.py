@@ -101,18 +101,15 @@ def check_response(response):
 def parse_status(homework):
     """Функция возвращает сообщение о изменении статуса проверки."""
     logger.info('Проверка статуса проверки')
-    try:
-        homework_status = homework('status')
-    except KeyError as key:
-        logger.error(f'Ошибка доступа по ключу status: {key}')
+    if 'homework_name' in homework:
+        homework_name = homework.get('homework_name')
+    else:
+        raise KeyError('Ошибка доступа по ключу homework_name')
+    homework_status = homework.get('status')
 
     try:
-        homework_name = homework('homework_name')
-    except KeyError as key:
-        logger.error(f'Ошибка доступа по ключу homework_name: {key}')
-
-    verdict = VERDICTS[homework_status]
-    if verdict is None:
+        verdict = VERDICTS[homework_status]
+    except KeyError:
         message = 'Неизвестный статус домашней работы'
         logger.error(message)
         raise exceptions.HWStatusException(message)
