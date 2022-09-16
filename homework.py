@@ -94,7 +94,7 @@ def check_response(response):
     if not isinstance(homeworks_list, list):
         message = 'В API ответе домашние работы представлены не списком'
         logger.error(message)
-        raise TypeError(message)
+        raise exceptions.CheckResponseException(message)
     return homeworks_list
 
 
