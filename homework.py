@@ -154,7 +154,7 @@ def main():
                 if homework_status is not None:
                     send_message(bot, homework_status)
             else:
-                logger.debug('Не нашлось новых статусов')
+                logger.info('Не нашлось новых статусов')
 
         except Exception as err:
             message = f'Сбой в работе программы: {err}'
