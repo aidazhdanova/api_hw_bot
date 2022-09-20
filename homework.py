@@ -82,10 +82,6 @@ def check_response(response):
         logger.error(message)
         raise exceptions.CheckResponseException(message)
 
-    if len(homeworks_list) == 0:
-        message = 'В последнее время домашних работ не поступало'
-        logger.error(message)
-
     if homeworks_list is None:
         message = 'В API ответе нет словаря с домашними работами'
         logger.error(message)
@@ -101,10 +97,17 @@ def check_response(response):
 def parse_status(homework):
     """Функция возвращает сообщение о изменении статуса проверки."""
     logger.info('Проверка статуса проверки')
-    if 'homework_name' in homework:
-        homework_name = homework.get('homework_name')
-    else:
-        raise KeyError('Ошибка доступа по ключу homework_name')
+    if 'homework_name' not in homework:
+        parse_status = 'Ошибка доступа по ключу homework_name'
+        logger.error(parse_status)
+        raise KeyError(parse_status)
+
+    if 'status' not in homework:
+        parse_status = 'Ошибка доступа по ключу status'
+        logger.error(parse_status)
+        raise KeyError(parse_status)
+
+    homework_name = homework.get('homework_name')
     homework_status = homework.get('status')
 
     try:
@@ -135,9 +138,10 @@ def main():
     """Основная логика работы бота."""
     logger.info('Запуск бота')
     if not check_tokens():
-        return 0
+        exit()
     current_timestamp = int(time.time())
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
+    error = ''
 
     while True:
         try:
@@ -147,16 +151,17 @@ def main():
             homeworks = check_response(response)
 
             if len(homeworks) > 0:
-                homework_status = parse_status(homeworks[0])
-                if homework_status is not None:
-                    send_message(bot, homework_status)
+                send_message(bot, parse_status(homeworks[0]))
             else:
                 logger.info('Не нашлось новых статусов')
 
         except Exception as err:
             message = f'Сбой в работе программы: {err}'
             logger.critical(message)
-            send_message(bot, message)
+            if message != error:
+                sent = send_message(bot, message)
+                if sent is True:
+                    error = message
 
         finally:
             time.sleep(RETRY_TIME)
