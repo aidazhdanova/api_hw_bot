@@ -94,8 +94,8 @@ def check_response(response):
         raise exceptions.CheckResponseException(message)
 
     if 'current_date' not in response:
-        message = 'Ключ "current_date" отсутствует в словаре'
-        raise exceptions.CheckResponseException(message)
+        message = 'Ключ current_date отсутствует в словаре'
+        raise KeyError(message)
     return homeworks_list
 
 
