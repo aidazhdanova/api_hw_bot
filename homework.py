@@ -92,6 +92,7 @@ def check_response(response):
         message = 'В API ответе домашние работы представлены не списком'
         logger.error(message)
         raise exceptions.CheckResponseException(message)
+
     if 'current_date' not in response.keys():
         message_current_date = 'Ключ "current_date" отсутствует в словаре'
         raise KeyError(message_current_date)
