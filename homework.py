@@ -39,8 +39,8 @@ def send_message(bot, message):
     try:
         bot.send_message(TELEGRAM_CHAT_ID, message)
         logger.info(f'Успех! Бот отправил сообщение: {message}')
-    except Exception as error:
-        raise SystemError(f'Не отправляются сообщения: {error}')
+    except exceptions.SendMessageException:
+        logger.error('Сбой при отправке сообщения')
 
 
 def get_api_answer(current_timestamp):
@@ -93,7 +93,7 @@ def check_response(response):
         logger.error(message)
         raise exceptions.CheckResponseException(message)
 
-    if 'current_date' not in response.keys():
+    if 'current_date' not in response:
         message_current_date = 'Ключ "current_date" отсутствует в словаре'
         raise KeyError(message_current_date)
     return homeworks_list
@@ -165,6 +165,7 @@ def main():
             logger.critical(message)
             if message != error:
                 send_message(bot, message)
+                error = message
 
         finally:
             time.sleep(RETRY_TIME)

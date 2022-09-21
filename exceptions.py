@@ -1,3 +1,9 @@
+class SendMessageException(Exception):
+    """Исключение отправки сообщения."""
+
+    pass
+
+
 class APIException(Exception):
     """Исключение проблем с запросом к API."""
 
