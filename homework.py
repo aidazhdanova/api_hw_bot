@@ -25,7 +25,6 @@ RETRY_TIME = 600
 ENDPOINT = 'https://practicum.yandex.ru/api/user_api/homework_statuses/'
 HEADERS = {'Authorization': f'OAuth {PRACTICUM_TOKEN}'}
 
-
 VERDICTS = {
     'approved': 'Работа проверена: ревьюеру всё понравилось. Ура!',
     'reviewing': 'Работа взята на проверку ревьюером.',
@@ -40,14 +39,16 @@ def send_message(bot, message):
     try:
         bot.send_message(TELEGRAM_CHAT_ID, message)
         logger.info(f'Успех! Бот отправил сообщение: {message}')
-    except telegram.error.TelegramError(message):
-        logger.error('Что-то пошло не так')
+    except Exception as error:
+        raise SystemError(f'Не отправляются сообщения: {error}')
 
 
 def get_api_answer(current_timestamp):
     """Функция выполняет запрос к API Яндекс Практикума."""
     logger.info('Запрос к серверу')
     timestamp = current_timestamp or int(time.time())
+    if not isinstance(timestamp, (float, int)):
+        raise TypeError('Ошибка формата даты')
     params = {
         'from_date': timestamp
     }
@@ -91,6 +92,9 @@ def check_response(response):
         message = 'В API ответе домашние работы представлены не списком'
         logger.error(message)
         raise exceptions.CheckResponseException(message)
+    if 'current_date' not in response.keys():
+        message_current_date = 'Ключ "current_date" отсутствует в словаре'
+        raise KeyError(message_current_date)
     return homeworks_list
 
 
@@ -139,16 +143,16 @@ def main():
     logger.info('Запуск бота')
     if not check_tokens():
         exit()
-    current_timestamp = int(time.time())
+
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
+    current_timestamp = int(time.time())
     error = ''
 
     while True:
         try:
-            if type(current_timestamp) is not int:
-                raise SystemError('Передана не дата')
             response = get_api_answer(current_timestamp)
             homeworks = check_response(response)
+            current_timestamp = response.get('current_date')
 
             if len(homeworks) > 0:
                 send_message(bot, parse_status(homeworks[0]))
@@ -159,9 +163,7 @@ def main():
             message = f'Сбой в работе программы: {err}'
             logger.critical(message)
             if message != error:
-                sent = send_message(bot, message)
-                if sent is True:
-                    error = message
+                send_message(bot, message)
 
         finally:
             time.sleep(RETRY_TIME)
