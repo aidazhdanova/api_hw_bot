@@ -39,7 +39,7 @@ def send_message(bot, message):
     try:
         bot.send_message(TELEGRAM_CHAT_ID, message)
         logger.info(f'Успех! Бот отправил сообщение: {message}')
-    except exceptions.SendMessageException:
+    except telegram.error.TelegramError(message):
         logger.error('Сбой при отправке сообщения')
 
 
@@ -159,6 +159,9 @@ def main():
                 send_message(bot, parse_status(homeworks[0]))
             else:
                 logger.info('Не нашлось новых статусов')
+
+        except exceptions.NoSendMessage as error:
+            logger.error(f'Что-то пошло не так: {error}')
 
         except Exception as err:
             message = f'Сбой в работе программы: {err}'

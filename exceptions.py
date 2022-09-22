@@ -1,5 +1,5 @@
-class SendMessageException(Exception):
-    """Исключение отправки сообщения."""
+class NoSendMessage(Exception):
+    """Исключение для случаев, когда не нужно отправлять сообщение в Telegram."""
 
     pass
 
